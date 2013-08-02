@@ -7,25 +7,7 @@
 *
 */
 
-var Windows, assert, assertWindows, closeTopic, helpers, path, transport, vows, winston;
-
-assertWindows = function(transport) {
-  assert.instanceOf(transport, Transport);
-  return assert.isFunction(transport.log);
-};
-
-closeTopic = function() {
-  var logger, transport;
-  transport = new winston.transports.Windows();
-  logger = new winston.Logger({
-    transports: [transport]
-  });
-  logger.log("debug", "Test message to actually use socket");
-  logger.remove({
-    name: "Windows"
-  });
-  return transport;
-};
+var Transport, assert, assertInstall, assertLogs, assertWindows, helpers, path, transport, vows, winston;
 
 path = require("path");
 
@@ -37,19 +19,35 @@ winston = require("winston");
 
 helpers = require("winston/test/helpers");
 
-Windows = require("../lib/winston-windows").Transport;
+Transport = require("../lib/winston-windows").Transport;
 
-transport = new Windows();
+transport = new Transport();
+
+assertInstall = function(transport) {};
+
+assertWindows = function(transport) {
+  assert.instanceOf(transport, Transport);
+  return assert.isFunction(transport.log);
+};
+
+assertLogs = function() {
+  var logger;
+  transport = new winston.transports.Windows();
+  logger = new winston.Logger({
+    transports: [transport]
+  });
+  logger.log("info", "This is an INFORMATION test.");
+  logger.log("warn", "This is an WARNING test.");
+  return logger.log("error", "This is an ERROR test.");
+};
 
 vows.describe("winston-windows").addBatch({
   "An instance of the Windows Transport": {
     "should have the proper methods defined": function() {
       return assertWindows(transport);
     },
-    "the log() method": helpers.testWindowsLevels(transport, "should log messages to Windows EventLog", function(ign, err, ok) {
-      assert.isTrue(!err);
-      assert.isTrue(ok);
-      return assert.equal(transport.queue.length, 0);
-    })
+    "should log messages to Windows EventLog": function() {
+      return assertLogs();
+    }
   }
 })["export"](module);

@@ -9,7 +9,7 @@ levels = Object.keys({
 class Transport extends winston.Transport
   constructor: (options) ->
     super options
-    @name = options.name || "Winston-Windows"
+    @name = if options and options.name? then options.name else "Winston-Windows"
     @eventLogger = new EventLogger
       source: @name,
       eventLog: 'APPLICATION'
@@ -29,4 +29,4 @@ class Transport extends winston.Transport
 
 exports.Transport = Transport
 
-winston.transports.Windows = Windows
+winston.transports.Windows = Transport

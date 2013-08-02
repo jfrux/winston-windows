@@ -5,30 +5,33 @@
 # * MIT LICENSE
 *
 ###
-assertWindows = (transport) ->
-  assert.instanceOf transport, Transport
-  assert.isFunction transport.log
-closeTopic = ->
-  transport = new winston.transports.Windows()
-  logger = new winston.Logger(transports: [transport])
-  logger.log "debug", "Test message to actually use socket"
-  logger.remove name: "Windows"
-  transport
 path = require("path")
 vows = require("vows")
 assert = require("assert")
 winston = require("winston")
 helpers = require("winston/test/helpers")
-Windows = require("../lib/winston-windows").Transport
-transport = new Windows()
-#This is > 0 because winston-Windows.js line 124
-vows.describe("winston-windows").addBatch("An instance of the Windows Transport":
-  "should have the proper methods defined": ->
-    assertWindows transport
+Transport = require("../lib/winston-windows").Transport
+transport = new Transport()
 
-  "the log() method": helpers.testWindowsLevels(transport, "should log messages to Windows EventLog", (ign, err, ok) ->
-    assert.isTrue not err
-    assert.isTrue ok
-    assert.equal transport.queue.length, 0
+assertInstall = (transport) ->
+  
+assertWindows = (transport) ->
+  assert.instanceOf transport, Transport
+  assert.isFunction transport.log
+
+assertLogs = () ->
+  transport = new winston.transports.Windows()
+  logger = new winston.Logger(transports: [transport])
+  logger.log "info", "This is an INFORMATION test."
+  logger.log "warn", "This is an WARNING test."
+  logger.log "error", "This is an ERROR test."
+vows
+  .describe("winston-windows")
+  .addBatch("An instance of the Windows Transport":
+    "should have the proper methods defined": ->
+      assertWindows transport
+
+    "should log messages to Windows EventLog": ->
+      assertLogs()
   )
-).export module
+.export module
